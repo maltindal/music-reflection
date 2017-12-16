@@ -3,7 +3,10 @@ import Pitchfinder from 'pitchfinder';
 import './style.css';
 import { kizNey } from './freqs';
 
-const detectPitch = Pitchfinder.YIN();
+const detectPitch = Pitchfinder.AMDF({
+  minFrequency: 400,
+  maxFrequency: 1400
+});
 
 function canvas() {
   const canvas = document.createElement('canvas');
