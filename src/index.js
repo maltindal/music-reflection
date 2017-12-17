@@ -3,10 +3,7 @@ import Pitchfinder from 'pitchfinder';
 import './style.css';
 import { kizNey } from './freqs';
 
-const detectPitch = Pitchfinder.AMDF({
-  minFrequency: 400,
-  maxFrequency: 1400
-});
+const detectPitch = Pitchfinder.YIN();
 
 function canvas() {
   const canvas = document.createElement('canvas');
@@ -156,7 +153,11 @@ const renderPitch = (canvas, canvasCtx, analyser) => {
 
     canvasCtx.font = '20px sans';
     canvasCtx.textAlign = 'center';
-    canvasCtx.fillText(diff, canvas.width/2, canvas.height/2+40);
+    canvasCtx.fillText(Math.round(diff*100)/100, canvas.width/2, canvas.height/2+60);
+
+    canvasCtx.font = '40px sans';
+    canvasCtx.textAlign = 'center';
+    canvasCtx.fillText(Math.round(pitch*100)/100, canvas.width/2, canvas.height/2+110);
   }
 };
 
