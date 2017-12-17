@@ -47,19 +47,15 @@ const initialize = () => {
      { audio: true, video: false },
 
      stream => {
-        // Create a MediaStreamAudioSourceNode
-        // Feed the HTMLMediaElement into it
         const source = audioCtx.createMediaStreamSource(stream);
-
+        const bufferLength = 2048;
         const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 1024;
-        const bufferLength = analyser.frequencyBinCount;
+        const pitchDetector = new (Module().AubioPitch)('default', bufferLength, 1, audioCtx.sampleRate);
 
         source.connect(analyser);
-
         updateCanvasSize();
 
-        render(canvas, canvasCtx, createAnalyser(bufferLength, analyser));
+        render(canvas, canvasCtx, createAnalyser(bufferLength, analyser), pitchDetector);
      },
 
      err => console.log('The following gUM error occured: ' + err)
@@ -75,6 +71,11 @@ const createAnalyser = (bufferLength, analyser) => {
       analyser.getByteTimeDomainData(dataArray);
       return dataArray;
     },
+    getFloatTimeData: () => {
+      const dataArray = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(dataArray);
+      return dataArray;
+    },
     getFrequencyData: () => {
       const dataArray = new Uint8Array(bufferLength);
       analyser.getByteFrequencyData(dataArray);
@@ -83,13 +84,13 @@ const createAnalyser = (bufferLength, analyser) => {
   };
 };
 
-const render = (canvas, canvasCtx, analyser) => {
-  window.requestAnimationFrame(() => render(canvas, canvasCtx, analyser));
+const render = (canvas, canvasCtx, analyser, pitchDetector) => {
+  window.requestAnimationFrame(() => render(canvas, canvasCtx, analyser, pitchDetector));
 
   clearScreen(canvas, canvasCtx);
   renderWave(canvas, canvasCtx, analyser.getTimeData(), analyser.bufferLength);
   renderFreqs(canvas, canvasCtx, analyser.getFrequencyData(), analyser.bufferLength);
-  renderPitch(canvas, canvasCtx, analyser);
+  renderPitch(canvas, canvasCtx, pitchDetector.do(analyser.getTimeData()));
 };
 
 const renderWave = (canvas, canvasCtx, dataArray, bufferLength) => {
@@ -98,12 +99,12 @@ const renderWave = (canvas, canvasCtx, dataArray, bufferLength) => {
 
   canvasCtx.beginPath();
 
-  const sliceWidth = canvas.width * 1.0 / bufferLength;
+  const sliceWidth = canvas.width * 2 / bufferLength;
   var x = 0;
 
   for(var i = 0; i < bufferLength; i++) {
     const v = dataArray[i] / 128.0;
-    const y = v * canvas.height/2;
+    const y = v * canvas.height / 2;
 
     if (i === 0) {
       canvasCtx.moveTo(x, y);
@@ -128,7 +129,7 @@ const renderFreqs = (canvas, canvasCtx, dataArray, bufferLength) => {
   var x = 0;
   const a = canvas.height / 256.0;
 
-  for(var i = 0; i < bufferLength; i++) {
+  for (var i = 0; i < bufferLength; i++) {
     const v = dataArray[i];
     const y = v * a;
 
@@ -139,27 +140,27 @@ const renderFreqs = (canvas, canvasCtx, dataArray, bufferLength) => {
   }
 }
 
-const renderPitch = (canvas, canvasCtx, analyser) => {
-  const pitch = detectPitch(analyser.getTimeData());
+const renderPitch = (canvas, canvasCtx, pitch) => {
+  if (pitch <= 0) { return; }
+  // const pitch = detectPitch(analyser.getTimeData());
   const v = _.minBy(_.map(kizNey, x => ({ f: x.f, d: Math.abs(x.f - pitch), n: x.n })), 'd');
   const diff = v.f - pitch;
 
-  if (Math.abs(diff) < 100) {
+  if (Math.abs(diff) < 150) {
     canvasCtx.fillStyle = 'rgb(255, 255, 255)';
 
-    canvasCtx.font = '100px times';
-    canvasCtx.textAlign = 'center';
-    canvasCtx.fillText(v.n, canvas.width/2, canvas.height/2);
-
-    canvasCtx.font = '20px sans';
-    canvasCtx.textAlign = 'center';
-    canvasCtx.fillText(Math.round(diff*100)/100, canvas.width/2, canvas.height/2+60);
-
-    canvasCtx.font = '40px sans';
-    canvasCtx.textAlign = 'center';
-    canvasCtx.fillText(Math.round(pitch*100)/100, canvas.width/2, canvas.height/2+110);
+    renderText(canvas, canvasCtx, '100px sans', 'center', v.n, canvas.width/2, canvas.height/2);
+    renderText(canvas, canvasCtx, '20px sans', 'center', Math.round(diff*100)/100, canvas.width/2, canvas.height/2+60);
+    renderText(canvas, canvasCtx, '40px sans', 'center', Math.round(pitch), canvas.width/2, canvas.height/2+110);
   }
 };
+
+function renderText(canvas, canvasCtx, style, align, text, x, y) {
+  canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+  canvasCtx.font = style;
+  canvasCtx.textAlign = align;
+  canvasCtx.fillText(text, x, y);
+}
 
 const updateCanvasSize = () => {
   const canvas = document.getElementById('canvas');
