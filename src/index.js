@@ -4,6 +4,8 @@ import Vex from 'vexflow';
 import { kizNey, wnotes } from './freqs';
 import './style.css';
 
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
 const detectPitch = Pitchfinder.YIN();
 
 function canvas() {
