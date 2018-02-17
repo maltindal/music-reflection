@@ -50,17 +50,17 @@ function initVex() {
   const VF = Vex.Flow;
 
   // Create an SVG renderer and attach it to the DIV element named "boo".
-  var div = document.getElementById("vex-container")
-  var renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+  const div = document.getElementById("vex-container")
+  const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 
   // Configure the rendering context.
   renderer.resize(window.innerWidth, window.innerHeight);
-  var context = renderer.getContext();
+  const context = renderer.getContext();
   context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
   context.setFillStyle('white');
   context.setStrokeStyle('white');
 
-  var notes = [];
+  const notes = [];
 
   return {
     addNote: (n, acc) => {
@@ -75,14 +75,14 @@ function initVex() {
       }
       notes.push(staveNote);
 
-      var stave = new VF.Stave(10, 40, 400);
+      const stave = new VF.Stave(10, 40, 400);
       // Add a clef and time signature.
       stave.addClef("treble")
       stave.setContext(context).draw();
 
-      var voice = new VF.Voice().setStrict(false);
+      const voice = new VF.Voice().setStrict(false);
       voice.addTickables(notes);
-      var formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
+      const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
       voice.draw(context, stave);
     }
   };
