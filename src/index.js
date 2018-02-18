@@ -48,6 +48,18 @@ window.onresize = () => {
   updateCanvasSize();
 }
 
+function setDarkTheme(context) {
+  context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
+  context.setFillStyle('white');
+  context.setStrokeStyle('white');
+}
+
+function setLightTheme(context) {
+  context.setFont("Arial", 10, "").setBackgroundFillStyle("#333");
+  context.setFillStyle('black');
+  context.setStrokeStyle('black');
+}
+
 function initVex() {
   const VF = Vex.Flow;
 
@@ -58,9 +70,7 @@ function initVex() {
   // Configure the rendering context.
   renderer.resize(window.innerWidth, window.innerHeight);
   const context = renderer.getContext();
-  context.setFont("Arial", 10, "").setBackgroundFillStyle("#eed");
-  context.setFillStyle('white');
-  context.setStrokeStyle('white');
+  setLightTheme(context);
 
   const notesWidth = window.innerWidth-50;
   const notesPerStave = Math.round(notesWidth / 50);
@@ -219,7 +229,8 @@ const render = (timestamp, canvas, canvasCtx, analyser, pitchDetector) => {
 
 const renderWave = (canvas, canvasCtx, dataArray, bufferLength) => {
   canvasCtx.lineWidth = 2;
-  canvasCtx.strokeStyle = 'rgb(80, 80, 80)';
+  // canvasCtx.strokeStyle = 'rgb(80, 80, 80)'; dark theme
+  canvasCtx.strokeStyle = 'rgb(200, 200, 200)';
 
   canvasCtx.beginPath();
 
@@ -244,7 +255,7 @@ const renderWave = (canvas, canvasCtx, dataArray, bufferLength) => {
 }
 
 const clearScreen = (canvas, canvasCtx, fillStyle) => {
-  canvasCtx.fillStyle = fillStyle === undefined ? 'rgb(0, 0, 0)' : fillStyle;
+  canvasCtx.fillStyle = fillStyle === undefined ? 'rgb(255, 255, 255)' : fillStyle;
   canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -257,7 +268,7 @@ const renderFreqs = (canvas, canvasCtx, dataArray, bufferLength) => {
     const v = dataArray[i];
     const y = v * a;
 
-    canvasCtx.fillStyle = 'rgb(' + (v+100) + ',50,50)';
+    canvasCtx.fillStyle = 'rgba(50,50,50, 0.05)';
     canvasCtx.fillRect(x, canvas.height - y, barWidth, y);
 
     x += barWidth + 1;
@@ -271,7 +282,7 @@ const renderPitch = (canvas, canvasCtx, pitch) => {
   const diff = v.f - pitch;
 
   if (Math.abs(diff) < 150) {
-    canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+    canvasCtx.fillStyle = 'rgba(255, 255, 255)';
 
     renderText(canvas, canvasCtx, '100px sans', 'center', v.n, canvas.width/2, canvas.height/2);
     renderText(canvas, canvasCtx, '20px sans', 'center', Math.round(diff*100)/100, canvas.width/2, canvas.height/2+60);
@@ -347,7 +358,7 @@ function renderTime(canvas, canvasCtx, timestamp) {
 
 
 function renderText(canvas, canvasCtx, style, align, text, x, y) {
-  canvasCtx.fillStyle = 'rgb(255, 255, 255)';
+  canvasCtx.fillStyle = 'rgba(100, 100, 100, 0.9)';
   canvasCtx.font = style;
   canvasCtx.textAlign = align;
   canvasCtx.fillText(text, x, y);
