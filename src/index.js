@@ -62,32 +62,85 @@ function initVex() {
   context.setFillStyle('white');
   context.setStrokeStyle('white');
 
+  const notesWidth = window.innerWidth-50;
+  const notesPerStave = Math.round(notesWidth / 50);
+  // const notesPerStave = 3;
+  const stavesPerPage = Math.round(window.innerHeight/100) - 1;
+  const notesPerPage = notesPerStave * stavesPerPage;
+  console.log("notesPerStave", notesPerStave);
+  console.log("stavesPerPage", stavesPerPage);
+  console.log("notesPerPage", notesPerPage);
+
   const notes = [];
 
+  const renderCurrent = () => {
+    context.clear();
+
+    const notesAmount = notes.length % notesPerPage == 0
+      ? notesPerPage : notes.length % notesPerPage;
+
+    const chunks = _.chunk(_.takeRight(notes, notesAmount), notesPerStave);
+
+    _.times(stavesPerPage-chunks.length, () => chunks.push([]));
+
+    _.forEach(chunks,
+      (notesChunk, i) => {
+        const stave = new VF.Stave(10, 40+i*100, notesWidth);
+        stave.addClef("treble")
+        stave.setContext(context).draw();
+
+        const voice = new VF.Voice().setStrict(false);
+        voice.addTickables(notesChunk);
+        const formatter = new VF.Formatter().joinVoices([voice]).format([voice], notesWidth-50);
+        voice.draw(context, stave);
+    });
+  };
+
   return {
+    renderCurrent,
+
     addNote: (n, acc) => {
-      context.clear();
-      if (notes.length >= 10) {
-        notes.shift();
+      const lastNote = _.last(notes);
+      if (lastNote !== undefined) {
+        const lastN = lastNote.keys[0];
+        const lastM = lastNote.modifiers.length > 0
+          ? lastNote.modifiers[0].type : undefined;
+        if (n !== lastN || acc !== lastM) {
+          console.log("pushing...", "new note", n, acc, "last note", lastN, lastM);
+          notes.push(createStaveNote(VF, n, acc));
+        } else {
+          console.log("skipping...", "new note", n, acc, "last note", lastN, lastM);
+        }
+      } else {
+        console.log("pushing...");
+        notes.push(createStaveNote(VF, n, acc));
       }
-
-      const staveNote = new VF.StaveNote({ keys: [n], duration: "q" });
-      if (acc) {
-        staveNote.addAccidental(0, new VF.Accidental(acc));
-      }
-      notes.push(staveNote);
-
-      const stave = new VF.Stave(10, 40, 400);
-      // Add a clef and time signature.
-      stave.addClef("treble")
-      stave.setContext(context).draw();
-
-      const voice = new VF.Voice().setStrict(false);
-      voice.addTickables(notes);
-      const formatter = new VF.Formatter().joinVoices([voice]).format([voice], 400);
-      voice.draw(context, stave);
+      renderCurrent();
     }
   };
+}
+
+function createStaveNote(VF, n, acc) {
+  const staveNote = new VF.StaveNote({ keys: [n], duration: "q" });
+  if (acc) {
+    staveNote.addAccidental(0, new VF.Accidental(acc));
+  }
+  return staveNote;
+}
+
+function generateRandomNotes(VF, n) {
+  const randomNotes = [];
+  for (var i = 0; i < n; i++) {
+    const randomNote = Math.round(Math.random(wnotes.length));
+    const n = randomNote['n'];
+    const acc = randomNote['m'];
+    const staveNote = new VF.StaveNote({ keys: [n], duration: "q" });
+    if (acc) {
+      staveNote.addAccidental(0, new VF.Accidental(acc));
+    }
+    randomNotes.push(staveNote);
+  }
+  return randomNotes;
 }
 
 let vexComponent;
@@ -111,6 +164,7 @@ const initialize = () => {
         source.connect(analyser);
         updateCanvasSize();
 
+        vexComponent.renderCurrent();
         render(null, canvas, canvasCtx, createAnalyser(bufferLength, analyser), pitchDetector);
      },
 
@@ -151,9 +205,10 @@ const render = (timestamp, canvas, canvasCtx, analyser, pitchDetector) => {
   renderWave(canvas, canvasCtx, analyser.getTimeData(), analyser.bufferLength);
   renderFreqs(canvas, canvasCtx, analyser.getFrequencyData(), analyser.bufferLength);
   renderPitch(canvas, canvasCtx, pitchDetector.do(analyser.getTimeData()));
+
   detectNote(timestamp, pitchDetector.do(analyser.getTimeData()), note => {
     const v = _.filter(wnotes, x => x.f === note.f)[0];
-    console.log(v);
+    // console.log(v);
     vexComponent.addNote(v.n, v.m);
   });
   renderTime(canvas, canvasCtx, timestamp);
