@@ -12,9 +12,11 @@
   "author": "Muhammet Altindal",
   "license": "MIT",
   "dependencies": {
-    "pitchfinder": "^2.0.7"
+    "pitchfinder": "^2.0.7",
+    "vexflow": "^1.2.84"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^4.3.0",
     "css-loader": "^0.28.7",
     "style-loader": "^0.19.1",
     "webpack": "^3.10.0",
