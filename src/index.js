@@ -2,11 +2,19 @@ import _ from 'lodash';
 import Pitchfinder from 'pitchfinder';
 import Vex from 'vexflow';
 import { kizNey, wnotes } from './freqs';
+import { segah } from './makam';
 import './style.css';
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const detectPitch = Pitchfinder.YIN();
+
+// var currentMakamNey = makamFilter(kizNey, segah);
+var currentMakamNey = kizNey;
+
+function makamFilter(notes, makam) {
+  return _.filter(notes, x => _.find(makam, mn => x.n === mn) !== undefined);
+}
 
 function canvas() {
   const canvas = document.createElement('canvas');
@@ -218,7 +226,6 @@ const render = (timestamp, canvas, canvasCtx, analyser, pitchDetector) => {
 
   detectNote(timestamp, pitchDetector.do(analyser.getTimeData()), note => {
     const v = _.filter(wnotes, x => x.f === note.f)[0];
-    // console.log(v);
     vexComponent.addNote(v.n, v.m);
   });
   renderTime(canvas, canvasCtx, timestamp);
@@ -278,7 +285,7 @@ const renderFreqs = (canvas, canvasCtx, dataArray, bufferLength) => {
 const renderPitch = (canvas, canvasCtx, pitch) => {
   if (pitch <= 0) { return; }
 
-  const v = _.minBy(_.map(kizNey, x => ({ f: x.f, d: Math.abs(x.f - pitch), n: x.n })), 'd');
+  const v = _.minBy(_.map(currentMakamNey, x => ({ f: x.f, d: Math.abs(x.f - pitch), n: x.n })), 'd');
   const diff = v.f - pitch;
 
   if (Math.abs(diff) < 150) {
@@ -299,8 +306,7 @@ const renderTimeFreqDiagram = (canvas, canvasCtx, timestamp, pitch) => {
     startTimestamp = timestamp;
   }
 
-
-  const v = getNearestNote(kizNey, pitch);
+  const v = getNearestNoteByPitch(pitch);
   const diff = v.f - pitch;
 
   var x = (timestamp - startTimestamp) / 10 + 20;
@@ -310,7 +316,7 @@ const renderTimeFreqDiagram = (canvas, canvasCtx, timestamp, pitch) => {
     startTimestamp = timestamp;
   }
 
-  const y = Math.abs( (canvas.height / (_.last(kizNey).f + 100)) * v.f - canvas.height )
+  const y = Math.abs( (canvas.height / (_.last(currentMakamNey).f + 100)) * v.f - canvas.height )
 
   canvasCtx.fillStyle = 'rgb(50,50,50)';
   canvasCtx.beginPath();
@@ -318,12 +324,21 @@ const renderTimeFreqDiagram = (canvas, canvasCtx, timestamp, pitch) => {
   canvasCtx.fill();
 };
 
-function getNearestNote(arrayOfNotes, pitch) {
-  return _.minBy(_.map(kizNey, x => ({ f: x.f, d: Math.abs(x.f - pitch), n: x.n })), 'd');
+function getNearestNote(arrayOfNotes) {
+  const nearestNotes = _.map(arrayOfNotes, n => getNearestNoteByPitch(n.y));
+  const notesByFreq = _.groupBy(nearestNotes, 'f');
+  const freqs = Object.keys(notesByFreq);
+  const target = _.maxBy(_.map(freqs, f => ({f: Number(f), c: notesByFreq[f].length})), 'c');
+  const targetNote = _.find(currentMakamNey, x => x.f === target.f);
+  return targetNote;
+}
+
+function getNearestNoteByPitch(pitch) {
+  return _.minBy(_.map(currentMakamNey, x => ({ f: x.f, n: x.n, d: Math.abs(x.f - pitch) })), 'd');
 }
 
 const detectNote = (() => {
-  const win_length = 100;
+  const win_length = 30;
   const current_win = [];
   var last_seconds_timestamp = 0;
 
@@ -335,10 +350,10 @@ const detectNote = (() => {
       last_seconds_timestamp = timestamp;
     }
 
-    const v = getNearestNote(kizNey, pitch);
+    const v = getNearestNote(current_win, pitch);
     const diff = v.f - pitch;
 
-    if (timestamp - last_seconds_timestamp >= win_length) {
+    if (timestamp - last_seconds_timestamp >= 2) {
       last_seconds_timestamp = timestamp;
       if (Math.abs(diff) < 150) {
         callback(v);
