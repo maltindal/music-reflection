@@ -16,6 +16,30 @@ const segah = [
   'tiz hüseynî',
 ];
 
+const hicaz = [
+  'kaba rast',
+  'kaba dügah',
+  'kaba dik kürdî',
+  'kaba nim hicaz',
+  'yegah',
+  'hüseynî aşiran',
+  'ırak',
+  'rast',
+  'dügah',
+  'dik kürdî',
+  'nim hicaz',
+  'nevâ',
+  'hüseynî',
+  'evç',
+  'gerdaniye',
+  'muhayyer',
+  'sünbüle',
+  'tiz nim hicaz',
+  'tiz nevâ',
+  'tiz hüseynî',
+];
+
 export {
   segah,
+  hicaz,
 };

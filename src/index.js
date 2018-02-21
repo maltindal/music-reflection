@@ -2,15 +2,16 @@ import _ from 'lodash';
 import Pitchfinder from 'pitchfinder';
 import Vex from 'vexflow';
 import { kizNey, wnotes } from './freqs';
-import { segah } from './makam';
+import { segah, hicaz } from './makam';
 import './style.css';
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
 const detectPitch = Pitchfinder.YIN();
 
-// var currentMakamNey = makamFilter(kizNey, segah);
-var currentMakamNey = kizNey;
+var currentMakamNey = makamFilter(kizNey, segah);
+// var currentMakamNey = makamFilter(kizNey, hicaz);
+// var currentMakamNey = kizNey;
 
 function makamFilter(notes, makam) {
   return _.filter(notes, x => _.find(makam, mn => x.n === mn) !== undefined);
@@ -338,9 +339,10 @@ function getNearestNoteByPitch(pitch) {
 }
 
 const detectNote = (() => {
-  const win_length = 30;
-  const current_win = [];
+  const win_length = 20;
+  var current_win = [];
   var last_seconds_timestamp = 0;
+  var lastNote = undefined;
 
   return (timestamp, pitch, callback) => {
     if (current_win.length == win_length) { current_win.shift(); }
@@ -353,7 +355,12 @@ const detectNote = (() => {
     const v = getNearestNote(current_win, pitch);
     const diff = v.f - pitch;
 
-    if (timestamp - last_seconds_timestamp >= 2) {
+    if (timestamp - last_seconds_timestamp >= 50) {
+      if (lastNote !== v) {
+        current_win = [];
+        lastNote = v;
+      }
+
       last_seconds_timestamp = timestamp;
       if (Math.abs(diff) < 150) {
         callback(v);
