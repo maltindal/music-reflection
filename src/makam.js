@@ -1,0 +1,45 @@
+const segah = [
+  'rast',
+  'dügah',
+  'kürdî',
+  'segah',
+  'çargah',
+  'nevâ',
+  'hüseynî',
+  'acem',
+  'evç',
+  'gerdaniye',
+  'muhayyer',
+  'tiz segah',
+  'tiz çargah',
+  'tiz nevâ',
+  'tiz hüseynî',
+];
+
+const hicaz = [
+  'kaba rast',
+  'kaba dügah',
+  'kaba dik kürdî',
+  'kaba nim hicaz',
+  'yegah',
+  'hüseynî aşiran',
+  'ırak',
+  'rast',
+  'dügah',
+  'dik kürdî',
+  'nim hicaz',
+  'nevâ',
+  'hüseynî',
+  'evç',
+  'gerdaniye',
+  'muhayyer',
+  'sünbüle',
+  'tiz nim hicaz',
+  'tiz nevâ',
+  'tiz hüseynî',
+];
+
+export {
+  segah,
+  hicaz,
+};
