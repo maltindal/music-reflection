@@ -1,4 +1,12 @@
 const segah = [
+  'kaba rast',
+  'kaba kürdî',
+  'kaba segah',
+  'kaba çargah',
+  'yegah',
+  'hüseynî aşiran',
+  'acem aşiran',
+  'ırak',
   'rast',
   'dügah',
   'kürdî',
@@ -39,7 +47,12 @@ const hicaz = [
   'tiz hüseynî',
 ];
 
+function makamFilter(notes, makam) {
+  return _.filter(notes, x => _.find(makam, mn => x.n === mn) !== undefined);
+}
+
 export {
   segah,
   hicaz,
+  makamFilter,
 };
