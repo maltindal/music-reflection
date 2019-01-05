@@ -12,14 +12,14 @@
   "author": "Muhammet Altindal",
   "license": "MIT",
   "dependencies": {
-    "copy-webpack-plugin": "^4.6.0",
-    "css-loader": "^2.1.0",
-    "npm": "^6.5.0",
     "pitchfinder": "^2.0.7",
     "style-loader": "^0.23.1",
     "vexflow": "^1.2.84"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^4.6.0",
+    "css-loader": "^2.1.0",
+    "npm": "^6.5.0",
     "webpack": "^4.28.3",
     "webpack-cli": "^3.2.0",
     "webpack-dev-server": "^3.1.14"
