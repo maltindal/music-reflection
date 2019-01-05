@@ -19,16 +19,18 @@ let currentMakamNey = makamFilter(sipurdeNey, segah);
 // let currentMakamNey = makamFilter(kizNey, hicaz);
 // let currentMakamNey = kizNey;
 UI.render();
-let sheet = Sheet.init();
+var sheet;
 
-window.onload = () => {
+const startbtn = document.getElementById('start-button');
+startbtn.addEventListener('click', function () {
   if (navigator.getUserMedia) {
      console.log('getUserMedia supported.');
+     sheet = Sheet.init();
      initialize();
   } else {
      console.log('getUserMedia not supported on your browser!');
   }
-};
+});
 
 window.onresize = () => {
   updateCanvasSize();
