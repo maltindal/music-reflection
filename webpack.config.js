@@ -3,7 +3,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
-  devtool: 'inline-source-map',
   devServer: {
     contentBase: './dist'
   },
@@ -12,19 +11,17 @@ module.exports = {
     path: path.resolve(__dirname, 'dist')
   },
   module: {
-    rules: [
-     {
-       test: /\.css$/,
-       use: [
-         'style-loader',
-         'css-loader'
-       ]
-     }
-   ]
- },
- plugins: [
-   new CopyWebpackPlugin([
-     { from: 'lib' }
-   ])
- ]
+    rules: [{
+      test: /\.css$/,
+      use: [
+        'style-loader',
+        'css-loader'
+      ]
+    }]
+  },
+  plugins: [
+    new CopyWebpackPlugin([{
+      from: 'lib'
+    }])
+  ]
 };
