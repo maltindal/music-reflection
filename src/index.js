@@ -7,27 +7,30 @@ import Sheet from './sheet';
 import Note from './note';
 import Viz from './viz';
 
-import { kizNey, wnotes } from './freqs';
+import { kizNey, sipurdeNey, wnotes } from './freqs';
 import { segah, hicaz, makamFilter } from './makam';
 
 import './style.css';
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 const detectPitch = Pitchfinder.YIN();
-let currentMakamNey = makamFilter(kizNey, segah);
+let currentMakamNey = makamFilter(sipurdeNey, segah);
+// let currentMakamNey = makamFilter(kizNey, segah);
 // let currentMakamNey = makamFilter(kizNey, hicaz);
 // let currentMakamNey = kizNey;
 UI.render();
-let sheet = Sheet.init();
+var sheet;
 
-window.onload = () => {
+const startbtn = document.getElementById('start-button');
+startbtn.addEventListener('click', function () {
   if (navigator.getUserMedia) {
      console.log('getUserMedia supported.');
+     sheet = Sheet.init();
      initialize();
   } else {
      console.log('getUserMedia not supported on your browser!');
   }
-};
+});
 
 window.onresize = () => {
   updateCanvasSize();
@@ -94,7 +97,7 @@ const render = (timestamp, canvas, canvasCtx, analyser, pitchDetector) => {
   Viz.renderTime(canvas, canvasCtx, timestamp);
 
   Note.detectNote(timestamp, pitchDetector.do(analyser.getTimeData()), currentMakamNey, note => {
-    const v = _.filter(wnotes, x => x.f === note.f)[0];
+    const v = _.filter(wnotes, x => x.f === note.n)[0];
     sheet.addNote(v.n, v.m);
   });
 };

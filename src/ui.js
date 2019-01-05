@@ -12,12 +12,23 @@ function vexflow() {
   return div;
 }
 
-function component() {
+function musicReflectionComponent() {
   const component = document.createElement('div');
   component.class = 'fullsize';
   component.appendChild(canvas());
   component.appendChild(vexflow());
   return component;
+}
+
+function component() {
+  const button = document.createElement('button');
+  button.innerHTML = 'start';
+  button.id = 'start-button';
+  button.addEventListener('click', function() {
+    button.parentNode.removeChild(button);
+    document.body.appendChild(musicReflectionComponent());
+  });
+  return button;
 }
 
 function render() {

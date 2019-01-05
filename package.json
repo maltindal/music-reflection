@@ -1,25 +1,27 @@
 {
   "name": "music-reflection",
   "version": "1.0.0",
-  "description": "",
+  "description": "Shows which notes are being played in realtime.",
   "main": "index.js",
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack --watch",
-    "start": "webpack-dev-server --open",
+    "build": "webpack --mode=production",
+    "watch": "webpack --watch --mode=development",
+    "start": "webpack-dev-server --open --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Muhammet Altindal",
   "license": "MIT",
   "dependencies": {
+    "copy-webpack-plugin": "^4.6.0",
+    "css-loader": "^2.1.0",
+    "npm": "^6.5.0",
     "pitchfinder": "^2.0.7",
+    "style-loader": "^0.23.1",
     "vexflow": "^1.2.84"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.3.0",
-    "css-loader": "^0.28.7",
-    "style-loader": "^0.19.1",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.9.7"
+    "webpack": "^4.28.3",
+    "webpack-cli": "^3.2.0",
+    "webpack-dev-server": "^3.1.14"
   }
 }
