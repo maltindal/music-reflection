@@ -7,14 +7,15 @@ import Sheet from './sheet';
 import Note from './note';
 import Viz from './viz';
 
-import { kizNey, wnotes } from './freqs';
+import { kizNey, sipurdeNey, wnotes } from './freqs';
 import { segah, hicaz, makamFilter } from './makam';
 
 import './style.css';
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 const detectPitch = Pitchfinder.YIN();
-let currentMakamNey = makamFilter(kizNey, segah);
+let currentMakamNey = makamFilter(sipurdeNey, segah);
+// let currentMakamNey = makamFilter(kizNey, segah);
 // let currentMakamNey = makamFilter(kizNey, hicaz);
 // let currentMakamNey = kizNey;
 UI.render();
@@ -94,7 +95,7 @@ const render = (timestamp, canvas, canvasCtx, analyser, pitchDetector) => {
   Viz.renderTime(canvas, canvasCtx, timestamp);
 
   Note.detectNote(timestamp, pitchDetector.do(analyser.getTimeData()), currentMakamNey, note => {
-    const v = _.filter(wnotes, x => x.f === note.f)[0];
+    const v = _.filter(wnotes, x => x.f === note.n)[0];
     sheet.addNote(v.n, v.m);
   });
 };
